@@ -38,6 +38,20 @@ set(link_libraries
   Threads::Threads
 )
 
+add_custom_target(make_gen_inc_folder ALL
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/generated/include/${PROJECT_NAME}
+)
+
+add_custom_target(
+  generate_jinja_sources ALL
+  # DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/generated/include/${PROJECT_NAME}/parameters.hpp ${CMAKE_CURRENT_SOURCE_DIR}/generated/src/parameters.cpp
+
+  COMMAND python3 ${PROJECT_SOURCE_DIR}/template/render_jinja.py --template ${PROJECT_SOURCE_DIR}/template/yeast_msg_helper.hpp.j2 --src-dir ${PROJECT_SOURCE_DIR}/yeast-schema/data_definitions/ --dst-dir ${PROJECT_SOURCE_DIR}/generated/include/${PROJECT_NAME}
+
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/generated/include/${PROJECT_NAME}/yeast_msg_helper.hpp
+  COMMENT "Generating header ${CMAKE_CURRENT_SOURCE_DIR}/generated/include/${PROJECT_NAME}/${PROJECT_NAME}.hpp"
+)
 
 file(GLOB_RECURSE executable_sources CONFIGURE_DEPENDS
      "${PROJECT_SOURCE_DIR}/src/*.cpp"
@@ -56,9 +70,13 @@ find_package(Boost REQUIRED COMPONENTS ${boost_libraries_list})
 find_package (Eigen3 3.4.90 REQUIRED NO_MODULE)
 
 add_library(${PROJECT_NAME} ${executable_sources})
+add_dependencies(generate_jinja_sources make_gen_inc_folder)
+add_dependencies(${PROJECT_NAME} generate_jinja_sources)
 # Specify the include directories for your target, with the new header directory first
 include_directories(SYSTEM /usr/local/include/wpimath)
 target_include_directories(${PROJECT_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/generated/include>
+  $<INSTALL_INTERFACE:include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
   $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
