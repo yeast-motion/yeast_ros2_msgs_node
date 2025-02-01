@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-set(PROJECT_NAME "yeast_ros2_msgs_node")
+set(PROJECT_NAME "yeast_ros2_utilities_node")
 project(${PROJECT_NAME})
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -11,10 +11,14 @@ set(boost_libraries_list
   filesystem
 )
 
+set(THIRD_PARTY_LIB_FOLDER "/mnt/working/third_party_libs")
+
 set(third_party_find_package_list
   ament_cmake
   Threads
 )
+
+find_package(yeast_ros2_interfaces REQUIRED)
 
 set(ros_find_package_list
   rclcpp
@@ -26,6 +30,7 @@ set(ros_find_package_list
   tf2_eigen
   tf2_ros
   tf2_geometry_msgs
+  yeast_ros2_interfaces
 
 )
 
@@ -59,11 +64,22 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
 )
 
+include_directories(${PROJECT_NAME} SYSTEM
+  ${THIRD_PARTY_LIB_FOLDER}/yeastcpp/include
+)
+
 foreach(rtdependency ${ros_find_package_list})
   ament_target_dependencies(${PROJECT_NAME} ${rtdependency})
 endforeach()
 
-target_link_libraries(${PROJECT_NAME} ${link_libraries} ${Boost_LIBRARIES} Eigen3::Eigen)
+target_link_libraries(
+  ${PROJECT_NAME}
+  ${THIRD_PARTY_LIB_FOLDER}/yeastcpp/build/libyeastcpp.a
+
+  ${link_libraries}
+  ${Boost_LIBRARIES}
+  Eigen3::Eigen
+)
 
 
 target_compile_features(${PROJECT_NAME} PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
