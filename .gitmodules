@@ -1,3 +1,0 @@
-[submodule "yeast-schema"]
-	path = yeast-schema
-	url = https://github.com/yeast-motion/yeast-schema.git
