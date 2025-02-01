@@ -1,0 +1,41 @@
+#include "yeast_ros2_utilities_node/yeast_msg_helper.hpp"
+
+namespace yeast_msg_helper
+{
+{%for typename, (primatives, refs) in type_members.items() %}
+    yeast_ros2_interfaces::msg::{{typename}} to_msg(yeast_motion::{{typename}} yeast_type)
+    {
+        yeast_ros2_interfaces::msg::{{typename}} msg;
+
+        // Primative Types
+{%for primative in primatives %}
+        msg.{{primative}} = yeast_type.{{primative}};
+{% endfor %}
+
+        // Referenced Types
+{%for ref in refs %}
+        msg.{{ref}} = to_msg(yeast_type.{{ref}});
+{% endfor %}
+
+        return msg;
+    }
+
+    yeast_motion::{{typename}} from_msg(yeast_ros2_interfaces::msg::{{typename}} msg)
+    {
+        yeast_motion::{{typename}} yeast_type;
+
+        // Primative Types
+{%for primative in primatives %}
+        yeast_type.{{primative}} = msg.{{primative}};
+{% endfor %}
+
+        // Referenced Types
+{%for ref in refs %}
+        yeast_type.{{ref}} = from_msg(msg.{{ref}});
+{% endfor %}
+
+        return yeast_type;
+    }
+
+{% endfor %}
+}
