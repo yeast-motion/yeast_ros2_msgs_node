@@ -4,6 +4,11 @@ import pathlib
 import argparse
 import glob
 import os
+import re
+
+test = 'Twist2D'
+result = re.sub(r"(?!^.{0,1})[A-Z]", '_\g<0>', test).lower() + '.hpp'
+print(result)
 
 parser = argparse.ArgumentParser(description='Render script')
 parser.add_argument('--src-dir', action='store', dest='src_dir', default='')
@@ -54,11 +59,12 @@ for schema_file in schema_files:
 
     schema_basename = os.path.basename(schema_file)
 
-    env = jinja2.Environment(loader=jinja2.FileSystemLoader('/'), trim_blocks=True)
-    msg_template = env.get_template(template_file)
-    msg_result = msg_template.render(structures=structures, schema_name=schema_basename)
-    f = open(f'{msg_dir}/{msg_name}.msg', 'w')
-    f.write(msg_result)
-    f.close()
+    # env = jinja2.Environment(loader=jinja2.FileSystemLoader('/'), trim_blocks=True)
+    # msg_template = env.get_template(template_file)
+    # msg_result = msg_template.render(structures=structures, schema_name=schema_basename)
+    # f = open(f'{msg_dir}/{msg_name}.msg', 'w')
+    # f.write(msg_result)
+    # f.close()
 
 # python3 template/render_jinja.py --template template/msg.j2 --src-dir yeast-schema/data_definitions/ --dst-dir msg/
+
